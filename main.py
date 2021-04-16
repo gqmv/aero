@@ -53,8 +53,8 @@ def move_gas(gas_cans):
     for can in gas_cans:
         can.y += 5
 
-        if can.y >= SCREEN_SIZE[1] - BORDER_MARGIN_TOP:
-            can.kill
+        if can.y >= SCREEN_SIZE[1] - BORDER_MARGIN_TOP - BORDER_WIDTH - can.rect.height:
+            can.kill()
 
 
 def game_loop():
