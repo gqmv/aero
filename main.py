@@ -1,57 +1,110 @@
-import pygame as pg
-from game import Game
+import pygame
+from random import randint
+from objects import *
+from settings import *
 
 
-class Main:
-    # Classe basse para o jogo
+pygame.init()
 
-    pg.init()
-
-    def __init__(self):
-        self.window = pg.display.set_mode([600, 750])
-        pg.display.set_caption('Aero')
-
-        self.loop = True
-        self.fps = pg.time.Clock()
-
-        self.game = Game()
-        self.lost_gas_length = 0
-
-    def draw(self):
-        # Desenha a classe Game e todos os seus objetos na tela
-        self.window.fill([120, 172, 255])
-        self.game.draw(self.window)
-        self.game.update()
-        pg.draw.rect(self.window, (255, 255, 255), (60, 80, 480, 650), 4)
-
-    def gas_progress_bar(self):
-        # Desenha uma barra de gasolina (ajeitar para atribuir parametros para poder fazer uma barra para o nivel de
-        # agua tbm)
-        self.game.plane.full_gas += 0.6
-        if self.game.plane.full_gas >= 395:
-            self.game.plane.full_gas = 395
-        pg.draw.rect(self.window, (255, 0, 0), (10, 80, 25, 400))
-        pg.draw.rect(self.window, (255, 255, 255), (10, 80, 25, 400), 4)
-        pg.draw.rect(self.window, (120, 172, 255), (13, 81, 20, self.game.plane.full_gas))
-
-    def events(self):
-        # Identifica todos os eventos na tela
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                self.loop = False
-            if event.type == pg.KEYDOWN:
-                if event.key == pg.K_UP:
-                    self.game.plane.get_gas(50)
-            self.game.plane.events(event)
-
-    def update(self):
-        # Atualiza os eventos do jogo
-        while self.loop:
-            self.draw()
-            self.events()
-            self.fps.tick(60)
-            self.gas_progress_bar()
-            pg.display.update()
+WINDOW = pygame.display.set_mode(SCREEN_SIZE)
+pygame.display.set_caption(WINDOW_NAME)
 
 
-Main().update()
+def draw(all_sprites, gas_bar):
+    WINDOW.fill(BACKGROUND_COLOR)
+    all_sprites.draw(WINDOW)
+
+    pygame.draw.rect(
+        WINDOW,
+        WHITE_COLOR,
+        (
+            BORDER_MARGIN_SIDES,
+            BORDER_MARGIN_TOP,
+            SCREEN_SIZE[0] - 2 * BORDER_MARGIN_SIDES,
+            SCREEN_SIZE[1] - 2 * BORDER_MARGIN_TOP,
+        ),
+        BORDER_WIDTH,
+    )
+
+    gas_bar.draw(WINDOW)
+
+
+def check_collision(sprite, group):
+    if len(pygame.sprite.spritecollide(sprite, group, dokill=True)):
+        return True
+    return False
+
+
+def generate_gas(sprites, gas_cans):
+    if randint(1, 1000) < GAS_SPAWN_CHANCE:
+        Object(
+            GAS_ASSET,
+            randint(
+                BORDER_MARGIN_SIDES + BORDER_WIDTH,
+                SCREEN_SIZE[0] - BORDER_WIDTH - BORDER_MARGIN_SIDES,
+            ),
+            BORDER_MARGIN_TOP + BORDER_WIDTH,
+            sprites,
+            gas_cans,
+        )
+
+
+def move_gas(gas_cans):
+    for can in gas_cans:
+        can.y += 5
+
+        if can.y >= SCREEN_SIZE[1] - BORDER_MARGIN_TOP:
+            can.kill
+
+
+def game_loop():
+    loop = True
+    clock = pygame.time.Clock()
+
+    gas_bar = Bar(10, 80, 25, 400, 1)
+    gas_cans = pygame.sprite.Group()
+
+    sprites = pygame.sprite.Group()
+
+    plane = Plane(
+        PLANE_ASSET,
+        PLANE_ASSET,
+        PLANE_ASSET,
+        SCREEN_SIZE[0] / 2,
+        SCREEN_SIZE[1] - 200,
+        sprites,
+    )
+
+    while loop:
+        clock.tick(FPS)
+
+        for event in pygame.event.get():
+
+            if event.type == pygame.QUIT:
+                loop = False
+                break
+
+        mouse = pygame.mouse.get_pos()
+
+        plane.movement(mouse)
+
+        generate_gas(sprites, gas_cans)
+        move_gas(gas_cans)
+
+        if plane.gas >= GAS_CONS_PER_FRAME:
+            plane.gas -= GAS_CONS_PER_FRAME
+
+        if check_collision(plane, gas_cans):
+            plane.gas += GAS_PER_CAN
+
+            if plane.gas > 1:
+                plane.gas = 1
+
+        gas_bar.percentage = plane.gas
+        draw(sprites, gas_bar)
+
+        pygame.display.update()
+
+
+if __name__ == "__main__":
+    game_loop()
