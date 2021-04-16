@@ -4,6 +4,12 @@ from objects import *
 from settings import *
 
 
+pygame.init()
+
+WINDOW = pygame.display.set_mode(SCREEN_SIZE)
+pygame.display.set_caption(WINDOW_NAME)
+
+
 def draw(all_sprites, gas_bar):
     WINDOW.fill(BACKGROUND_COLOR)
     all_sprites.draw(WINDOW)
@@ -21,12 +27,6 @@ def draw(all_sprites, gas_bar):
     )
 
     gas_bar.draw(WINDOW)
-
-
-pygame.init()
-
-WINDOW = pygame.display.set_mode(SCREEN_SIZE)
-pygame.display.set_caption(WINDOW_NAME)
 
 
 def check_collision(sprite, group):
