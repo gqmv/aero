@@ -57,11 +57,25 @@ class Plane(Object):
 
     def movement(self, mouse):
         mouse_x = mouse[0]
+        mouse_y = mouse[1]
 
-        if mouse_x > self.x and self.x <= SCREEN_SIZE[0] - BORDER_MARGIN_SIDES - self.rect.width:
+        if (
+            mouse_x > self.x + self.rect.width
+            and self.x <= SCREEN_SIZE[0] - BORDER_MARGIN_SIDES - self.rect.width
+        ):
             self.image = self.img_right
             self.x += MOVEMENT_SPEED
 
         elif mouse_x < self.x and self.x >= BORDER_MARGIN_SIDES:
             self.image = self.img_left
             self.x -= MOVEMENT_SPEED
+
+        if (
+            mouse_y > self.y + self.rect.height
+            and self.y
+            <= SCREEN_SIZE[1] - BORDER_MARGIN_TOP - BORDER_WIDTH - self.rect.height
+        ):
+            self.y += MOVEMENT_SPEED
+
+        elif mouse_y < self.y and self.y >= BORDER_MARGIN_TOP + BORDER_WIDTH:
+            self.y -= MOVEMENT_SPEED
