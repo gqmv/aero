@@ -53,7 +53,7 @@ class Plane(Object):
         self.img_left = pygame.image.load(img_left)
         self.img_right = pygame.image.load(img_right)
         self.img_default = pygame.image.load(img)
-        self.gas = 0
+        self.gas = 1
 
     def movement(self, mouse):
         mouse_x = mouse[0]
