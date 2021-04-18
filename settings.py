@@ -21,7 +21,11 @@ SCROLL_SPEED = 5
 GAS_SPAWN_CHANCE = 10  # (0-1000)
 GAS_PER_CAN = 0.1  # (0-1)
 GAS_CONS_PER_FRAME = 0.0005  # (0-1)
+WATER_SPAWN_CHANCE = 10  # (0-1000)
+WATER_PER_CAN = 0.1  # (0-1)
+WATER_CONS_PER_FRAME = 0.0005  # (0-1)
 
 # Assets
 GAS_ASSET = os.path.join("assets", "gas.png")
 PLANE_ASSET = os.path.join("assets", "plane.png")
+WATER_ASSET = os.path.join("assets", "water.png")

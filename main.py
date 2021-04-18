@@ -10,11 +10,11 @@ WINDOW = pygame.display.set_mode(SCREEN_SIZE)
 pygame.display.set_caption(WINDOW_NAME)
 
 
-def draw(sprites: pygame.sprite.Group, gas_bar: Bar):
+def draw(sprites: pygame.sprite.Group, gas_bar: Bar, temp_bar: Bar):
     """
     :param sprites: Group of stripes
     :param gas_bar: The gas bar that will be drawn
-
+    :param temp_bar: The temp_bar will be drawn
     This function renders all sprites, bars and borders.
     """
     WINDOW.fill(BACKGROUND_COLOR)
@@ -34,6 +34,7 @@ def draw(sprites: pygame.sprite.Group, gas_bar: Bar):
     )
 
     gas_bar.draw(WINDOW)
+    temp_bar.draw(WINDOW)
 
 
 def check_collision(sprite: pygame.sprite.Sprite, group: pygame.sprite.Group):
@@ -73,6 +74,20 @@ def generate_gas(sprites: pygame.sprite.Group, gas_cans: pygame.sprite.Group):
         )
 
 
+def generate_water(sprites: pygame.sprite.Group, water_cans: pygame.sprite.Group):
+    if randint(1, 1000) < WATER_SPAWN_CHANCE:
+        Object(
+            WATER_ASSET,
+            randint(
+                BORDER_MARGIN_SIDES + BORDER_WIDTH,
+                SCREEN_SIZE[0] - BORDER_WIDTH - BORDER_MARGIN_SIDES,
+            ),
+            BORDER_MARGIN_TOP_BOTTOM + BORDER_WIDTH,
+            sprites,
+            water_cans,
+        )
+
+
 def move_gas(gas_cans: pygame.sprite.Group):
     """
     :param gas_cans: The sprite group that contains all sprites
@@ -80,6 +95,14 @@ def move_gas(gas_cans: pygame.sprite.Group):
     This function moves all gas cans (stored at gas_cans) SCROLL_SPEED pixels down.
     """
     for can in gas_cans:
+        can.y += SCROLL_SPEED
+
+        if can.y >= SCREEN_SIZE[1] - BORDER_MARGIN_TOP_BOTTOM - BORDER_WIDTH - can.rect.height:
+            can.kill()
+
+
+def move_water(water_cans: pygame.sprite.Group):
+    for can in water_cans:
         can.y += SCROLL_SPEED
 
         if can.y >= SCREEN_SIZE[1] - BORDER_MARGIN_TOP_BOTTOM - BORDER_WIDTH - can.rect.height:
@@ -94,8 +117,9 @@ def game_loop():
     clock = pygame.time.Clock()
 
     gas_bar = Bar(10, 80, 25, 400, 1)
+    temp_bar = Bar(560, 80, 25, 400, 1)
     gas_cans = pygame.sprite.Group()
-
+    water_cans = pygame.sprite.Group()
     sprites = pygame.sprite.Group()
 
     plane = Plane(
@@ -122,6 +146,8 @@ def game_loop():
 
         generate_gas(sprites, gas_cans)
         move_gas(gas_cans)
+        generate_water(sprites, water_cans)
+        move_water(water_cans)
 
         if plane.gas >= GAS_CONS_PER_FRAME:
             plane.gas -= GAS_CONS_PER_FRAME
@@ -132,8 +158,18 @@ def game_loop():
             if plane.gas > 1:
                 plane.gas = 1
 
+        if plane.water <= 1:
+            plane.water += WATER_CONS_PER_FRAME
+
+        if check_collision(plane, water_cans):
+            plane.water -= WATER_PER_CAN
+
+            if plane.water <= 0:
+                plane.water = 0
+
         gas_bar.percentage = plane.gas
-        draw(sprites, gas_bar)
+        temp_bar.percentage = plane.water
+        draw(sprites, gas_bar, temp_bar)
 
         pygame.display.update()
 
