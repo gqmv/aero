@@ -5,6 +5,7 @@ import pygame
 # Cores
 RED_COLOR = pygame.Color("Red")
 WHITE_COLOR = pygame.Color("White")
+BLUE_COLOR = pygame.Color("Blue")
 BACKGROUND_COLOR = (120, 172, 255)
 
 # Definições de janela
@@ -22,8 +23,8 @@ GAS_SPAWN_CHANCE = 10  # (0-1000)
 GAS_PER_CAN = 0.1  # (0-1)
 GAS_CONS_PER_FRAME = 0.0005  # (0-1)
 WATER_SPAWN_CHANCE = 10  # (0-1000)
-WATER_PER_CAN = 0.1  # (0-1)
-WATER_CONS_PER_FRAME = 0.0005  # (0-1)
+COOLING_PER_CAN = 0.1  # (0-1)
+TEMP_CONS_PER_FRAME = 0.0005  # (0-1)
 
 # Assets
 GAS_ASSET = os.path.join("assets", "gas.png")
