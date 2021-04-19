@@ -4,10 +4,17 @@ from settings import *
 
 class Bar(pygame.rect.Rect):
     def __init__(
-        self, x: int, y: int, width: int, height: int, default_percentage: int
+        self,
+        x: int,
+        y: int,
+        width: int,
+        height: int,
+        default_percentage: int,
+        color: pygame.Color,
     ):
         super().__init__(x, y, width, height)
         self.percentage = default_percentage
+        self.color = color
 
     def draw(self, surface: pygame.Surface):
         """
@@ -19,7 +26,7 @@ class Bar(pygame.rect.Rect):
         # Fills the bar according to self.percentage
         pygame.draw.rect(
             surface,
-            color=RED_COLOR,
+            color=self.color,
             rect=(
                 self.x,
                 self.y + ((1 - self.percentage) * self.height),
@@ -83,7 +90,7 @@ class Plane(Object):
         self.img_right = pygame.image.load(img_right)
         self.img_default = pygame.image.load(img)
         self.gas = 1
-        self.water = 0
+        self.temperature = 0
 
     def handle_movement(self, mouse: tuple):
         """
