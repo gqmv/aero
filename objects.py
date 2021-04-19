@@ -83,6 +83,7 @@ class Plane(Object):
         self.img_right = pygame.image.load(img_right)
         self.img_default = pygame.image.load(img)
         self.gas = 1
+        self.water = 0
 
     def handle_movement(self, mouse: tuple):
         """
