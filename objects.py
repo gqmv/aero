@@ -46,6 +46,7 @@ class Object(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.ticks = 0
 
     @property
     def x(self):
@@ -92,49 +93,18 @@ class Plane(Object):
         self.gas = 1
         self.temperature = 0
 
-    def handle_movement(self, mouse: tuple):
-        """
-        :param mouse: The mouse position
 
-        This function moves the plane depending on the mice position.
-        """
-        mouse_x = mouse[0]
-        mouse_y = mouse[1]
+class Enemy(Object):
+    def __init__(self, image: str, x: int, y: int, *groups: pygame.sprite.Group):
+        super().__init__(image, x, y, *groups)
 
-        if (
-            mouse_x
-            > self.x
-            + self.rect.width  # Checks if the mouse is to the right of the plane
-            and self.x
-            <= SCREEN_SIZE[0]
-            - BORDER_MARGIN_SIDES
-            - self.rect.width  # Checks if the plane isn't at the border
-        ):
-            self.image = (
-                self.img_right
-            )  # As the plane is moving right, set's the asset to self.img_right
-            self.x += MOVEMENT_SPEED
 
-        elif (
-            mouse_x < self.x and self.x >= BORDER_MARGIN_SIDES
-        ):  # Checks if the mouse is to the left of the plane and within the border
-            self.image = (
-                self.img_left
-            )  # As the plane is moving left, set's the asset to self.img_left
-            self.x -= MOVEMENT_SPEED
+class Bullets(Object):
+    def __init__(self, image: str, x: int, y: int, *groups: pygame.sprite.Group):
+        super().__init__(image, x, y, *groups)
+        self.spedd_y = 0
 
-        if (
-            mouse_y
-            > self.y + self.rect.height  # Checks if the mouse is under the plane
-            and self.y
-            <= SCREEN_SIZE[1]
-            - BORDER_MARGIN_TOP_BOTTOM
-            - BORDER_WIDTH
-            - self.rect.height
-        ):  # Checks if the plane is at the border
-            self.y += MOVEMENT_SPEED
-
-        elif (
-            mouse_y < self.y and self.y >= BORDER_MARGIN_TOP_BOTTOM + BORDER_WIDTH
-        ):  # Checks if the mouse is above the plane and within the border
-            self.y -= MOVEMENT_SPEED
+    def move(self):
+        self.rect.y += BULLETS_SPEED
+        if self.rect.y >= SCREEN_SIZE[1] - BORDER_MARGIN_TOP_BOTTOM - BORDER_WIDTH - self.rect.height:
+            self.kill()
