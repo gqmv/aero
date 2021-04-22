@@ -46,7 +46,8 @@ class Object(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.ticks = 0
+        self.tick = 0
+        self.frame = 1
 
     @property
     def x(self):
@@ -102,9 +103,9 @@ class Enemy(Object):
 class Bullets(Object):
     def __init__(self, image: str, x: int, y: int, *groups: pygame.sprite.Group):
         super().__init__(image, x, y, *groups)
-        self.spedd_y = 0
 
-    def move(self):
-        self.rect.y += BULLETS_SPEED
-        if self.rect.y >= SCREEN_SIZE[1] - BORDER_MARGIN_TOP_BOTTOM - BORDER_WIDTH - self.rect.height:
-            self.kill()
+
+class Missiles(Object):
+    def __init__(self, image: str, x: int, y: int, *groups: pygame.sprite.Group):
+        super().__init__(image, x, y, *groups)
+        self.vel = pygame.Vector3(0, SCROLL_SPEED, 0)
