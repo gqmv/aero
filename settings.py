@@ -4,8 +4,8 @@ import pygame
 
 # Cores
 RED_COLOR = pygame.Color("Red")
-WHITE_COLOR = pygame.Color("White")
 BLUE_COLOR = pygame.Color("Blue")
+WHITE_COLOR = pygame.Color("White")
 BACKGROUND_COLOR = (120, 172, 255)
 
 # Definições de janela
@@ -17,16 +17,33 @@ BORDER_WIDTH = 4
 
 # Definições de jogabilidade
 FPS = 60
-MOVEMENT_SPEED = 5
+MOVEMENT_SPEED = 10
 SCROLL_SPEED = 5
-GAS_SPAWN_CHANCE = 10  # (0-1000)
+BULLETS_SPEED = 10
+
+GAS_SPAWN_CHANCE = 5  # (0-1000)
 GAS_PER_CAN = 0.1  # (0-1)
 GAS_CONS_PER_FRAME = 0.0005  # (0-1)
-WATER_SPAWN_CHANCE = 10  # (0-1000)
+
+WATER_SPAWN_CHANCE = 5  # (0-1000)
 COOLING_PER_CAN = 0.1  # (0-1)
 TEMP_CONS_PER_FRAME = 0.0005  # (0-1)
+
+ENEMY_SPAWN_CHANCE = 5  # (0-1000)
+ENEMY_PER_CAN = 0.1  # (0-1)
+ENEMY_CONS_PER_FRAME = 0.0005  # (0-1)
+
+MISSILE_SPAWN_CHANCE = 5  # (0-1000)
+MISSILE_PER_CAN = 0.1  # (0-1)
+MISSILE_CONS_PER_FRAME = 0.0005  # (0-1)
 
 # Assets
 GAS_ASSET = os.path.join("assets", "gas.png")
 PLANE_ASSET = os.path.join("assets", "plane.png")
 WATER_ASSET = os.path.join("assets", "water.png")
+ENEMY_ASSET = os.path.join("assets", "enemy.png")
+BULLET_ASSET = os.path.join("assets", "bullet.png")
+BACKGROUND_ASSET = os.path.join("assets", "bg1.png")
+MENU_ASSET = os.path.join("assets", "menu.png")
+GAMEOVER_ASSET = os.path.join("assets", "gameover.png")
+MISSILE_ASSET = os.path.join("assets", "missile.png")
