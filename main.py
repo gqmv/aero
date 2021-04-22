@@ -4,6 +4,7 @@ from objects import *
 from settings import *
 from menu import *
 
+ticks = 0
 
 pygame.init()
 
@@ -53,7 +54,7 @@ def check_collision(sprite: pygame.sprite.Sprite, group: pygame.sprite.Group):
 
 def generate_item(cls: type, asset: str, spawn_chance: int, *groups: pygame.sprite.Group):
     """
-    :param cls: The class fo the object that will be generated
+    :param cls: The class of the object that will be generated
     :param asset: The asset of the object that will be generated
     :param spawn_chance: A number between 1-1000 that will define the spawn chance
     :param groups: The sprite groups that the object should be added to
@@ -64,7 +65,7 @@ def generate_item(cls: type, asset: str, spawn_chance: int, *groups: pygame.spri
     y: The top of the bordered area.
     """
     if randint(1, 1000) < spawn_chance:
-        c = cls(
+        cls(
             asset,
             randint(
                 BORDER_MARGIN_SIDES + BORDER_WIDTH,
@@ -94,6 +95,37 @@ def move_sprites(sprites: pygame.sprite.Group):
             sprite.kill()
 
 
+def shoot(sprites: pygame.sprite.Group, enemies: pygame.sprite.Group, bullets: pygame.sprite.Group):
+    for enemy in enemies:
+        enemy.tick += 1
+        if enemy.tick >= 30:
+            Bullets(
+                BULLET_ASSET,
+                (enemy.x + enemy.rect.width / 2) - 2,
+                enemy.rect.bottom,
+                sprites,
+                bullets
+            )
+            enemy.tick = 0
+
+    for bullet in bullets:
+        bullet.y += BULLETS_SPEED
+
+        if bullet.y >= SCREEN_SIZE[1] - BORDER_MARGIN_TOP_BOTTOM - BORDER_WIDTH - bullet.rect.height:
+            bullet.kill()
+
+
+def animation(sprites: pygame.sprite.Group, name: str, ticks: int, frames: int):
+    for sprite in sprites:
+        sprite.tick += 1
+        if sprite.tick == ticks:
+            sprite.tick = 0
+            sprite.frame += 1
+        if sprite.frame == frames:
+            sprite.frame = 1
+        sprite.image = pygame.image.load('assets/'f'{name}'f'{str(sprite.frame)}''.png')
+
+
 def game_loop():
     """
     This function is the main game loop.
@@ -109,27 +141,23 @@ def game_loop():
         x=560, y=80, width=25, height=400, default_percentage=1, color=BLUE_COLOR
     )
 
+    background = pygame.sprite.Group()
     gas_cans = pygame.sprite.Group()
     water_cans = pygame.sprite.Group()
     sprites = pygame.sprite.Group()
     enemies = pygame.sprite.Group()
     bullets = pygame.sprite.Group()
+    missiles = pygame.sprite.Group()
 
     menu = Menu("assets/menu.png")
     gameover = GameOver("assets/gameover.png")
 
-    bg1 = Object(
+    bg = Object(
         BACKGROUND_ASSET,
         0,
         0,
-        sprites
-    )
-
-    bg2 = Object(
-        BACKGROUND_ASSET,
-        0,
-        -750,
-        sprites
+        sprites,
+        background
     )
 
     plane = Plane(
@@ -186,6 +214,10 @@ def game_loop():
             move_sprites(water_cans)
             generate_item(Enemy, ENEMY_ASSET, ENEMY_SPAWN_CHANCE, enemies, sprites)
             move_sprites(enemies)
+            shoot(sprites, enemies, bullets)
+            generate_item(Missiles, MISSILE_ASSET, MISSILE_SPAWN_CHANCE, missiles, sprites)
+            move_sprites(missiles)
+            animation(background, 'bg', 10, 4)
 
             # Decreasing the level of gasoline
 
@@ -233,7 +265,19 @@ def game_loop():
                 if plane.temperature >= 1:
                     plane.temperature = 1
 
-            if plane.gas <= 0 or plane.temperature >= 1:
+            # Collisions between plane and missiles
+
+            if check_collision(plane, missiles):
+                plane.gas -= GAS_PER_CAN * 3
+                plane.temperature += COOLING_PER_CAN * 3
+
+                if plane.gas <= 0:
+                    plane.gas = 0
+
+                if plane.temperature >= 1:
+                    plane.temperature = 1
+
+            if plane.gas <= 0.0005 or plane.temperature >= 1:
                 change_scene = True
                 gas_cans.empty()
                 water_cans.empty()
@@ -241,18 +285,12 @@ def game_loop():
                 sprites.empty()
                 bullets.empty()
 
-                bg1 = Object(
+                bg = Object(
                     BACKGROUND_ASSET,
                     0,
                     0,
-                    sprites
-                )
-
-                bg2 = Object(
-                    BACKGROUND_ASSET,
-                    0,
-                    -750,
-                    sprites
+                    sprites,
+                    background
                 )
 
                 plane = Plane(
@@ -263,15 +301,6 @@ def game_loop():
                     SCREEN_SIZE[1] - 200,
                     sprites,
                 )
-
-            # Moving background
-
-            bg1.y += 1
-            bg2.y += 1
-            if bg1.y >= 750:
-                bg1.y = 0
-            if bg2.y >= 0:
-                bg2.y = -750
 
             gas_bar.percentage = plane.gas
             temp_bar.percentage = plane.temperature
