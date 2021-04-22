@@ -12,11 +12,12 @@ WINDOW = pygame.display.set_mode(SCREEN_SIZE)
 pygame.display.set_caption(WINDOW_NAME)
 
 
-def draw(sprites: pygame.sprite.Group, gas_bar: Bar, temp_bar: Bar):
+def draw(sprites: pygame.sprite.Group, gas_bar: Bar, temp_bar: Bar, score: int):
     """
     :param sprites: Group of stripes
     :param gas_bar: The gas bar that will be drawn
     :param temp_bar: The temp_bar that will be drawn
+    :param score: The current score
     This function renders all sprites, bars and borders.
     """
     WINDOW.fill(BACKGROUND_COLOR)
@@ -34,6 +35,9 @@ def draw(sprites: pygame.sprite.Group, gas_bar: Bar, temp_bar: Bar):
         ),
         BORDER_WIDTH,
     )
+
+    score_text = FONT.render(str(round(score)), True, WHITE_COLOR)
+    WINDOW.blit(score_text, (SCREEN_SIZE[0] - score_text.get_width() - 20, 20))
 
     gas_bar.draw(WINDOW)
     temp_bar.draw(WINDOW)
@@ -152,6 +156,8 @@ def game_loop():
     menu = Menu("assets/menu.png")
     gameover = GameOver("assets/gameover.png")
 
+    score = 0
+
     bg = Object(
         BACKGROUND_ASSET,
         0,
@@ -172,6 +178,7 @@ def game_loop():
     while loop:
         clock.tick(FPS)
 
+
         for event in pygame.event.get():
 
             if event.type == pygame.QUIT:
@@ -182,6 +189,9 @@ def game_loop():
                 menu.events(event)
 
             elif not change_scene:
+
+                score += SCORE_PER_SECOND / FPS
+                print(round(score))
 
                 if event.type == pygame.MOUSEMOTION:
                     plane.x = pygame.mouse.get_pos()[0] - plane.rect.width / 2
@@ -304,10 +314,11 @@ def game_loop():
 
             gas_bar.percentage = plane.gas
             temp_bar.percentage = plane.temperature
-            draw(sprites, gas_bar, temp_bar)
+            draw(sprites, gas_bar, temp_bar, score)
 
         elif not gameover.change_scene:
             gameover.all_sprites.draw(WINDOW)
+            score = 0
 
         else:
             menu.change_scene = False
