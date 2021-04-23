@@ -1,6 +1,6 @@
 import pygame
 from settings import *
-
+from pygame.math import Vector2
 
 class Bar(pygame.rect.Rect):
     def __init__(
@@ -108,4 +108,22 @@ class Bullets(Object):
 class Missiles(Object):
     def __init__(self, image: str, x: int, y: int, *groups: pygame.sprite.Group):
         super().__init__(image, x, y, *groups)
-        self.vel = pygame.Vector3(0, SCROLL_SPEED, 0)
+        self.image = pygame.image.load(image)
+        self.original_image = self.image
+        self.rect = self.image.get_rect(center=(x + 8.5, y + 20))
+        self.position = Vector2((x + 8.5, y + 20))
+        self.direction = Vector2(0, 1)  # A unit vector pointing downward.
+        self.speed = 5
+        self.angle_speed = 0
+        self.angle = 0
+
+    def update(self):
+        if self.angle_speed != 0:
+            # Rotate the direction vector and then the image.
+            self.direction.rotate_ip(self.angle_speed)
+            self.angle += self.angle_speed
+            self.image = pygame.transform.rotate(self.original_image, -self.angle)
+            self.rect = self.image.get_rect(center=self.rect.center)
+        # Update the position vector and the rect.
+        self.position += self.direction * self.speed
+        self.rect.center = self.position
