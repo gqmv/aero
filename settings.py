@@ -1,6 +1,5 @@
 import os
 import pygame
-pygame.font.init()
 
 
 # Cores
@@ -21,7 +20,6 @@ FPS = 60
 MOVEMENT_SPEED = 10
 SCROLL_SPEED = 5
 BULLETS_SPEED = 10
-SCORE_PER_SECOND = 2
 
 GAS_SPAWN_CHANCE = 5  # (0-1000)
 GAS_PER_CAN = 0.1  # (0-1)
@@ -39,9 +37,6 @@ MISSILE_SPAWN_CHANCE = 5  # (0-1000)
 MISSILE_PER_CAN = 0.1  # (0-1)
 MISSILE_CONS_PER_FRAME = 0.0005  # (0-1)
 
-FONT_SIZE = 20
-FONT = pygame.font.SysFont('Comic Sans MS', 20)
-
 # Assets
 GAS_ASSET = os.path.join("assets", "gas.png")
 PLANE_ASSET = os.path.join("assets", "plane.png")
@@ -50,5 +45,7 @@ ENEMY_ASSET = os.path.join("assets", "enemy.png")
 BULLET_ASSET = os.path.join("assets", "bullet.png")
 BACKGROUND_ASSET = os.path.join("assets", "bg1.png")
 MENU_ASSET = os.path.join("assets", "menu.png")
+KEY_ASSET = os.path.join("assets", "key.png")
+MENU_WATER = os.path.join("assets", "menu_water.png")
 GAMEOVER_ASSET = os.path.join("assets", "gameover.png")
 MISSILE_ASSET = os.path.join("assets", "missile.png")
