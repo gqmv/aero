@@ -2,6 +2,7 @@ import pygame
 from settings import *
 from pygame.math import Vector2
 
+
 class Bar(pygame.rect.Rect):
     def __init__(
         self,
