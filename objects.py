@@ -29,9 +29,9 @@ class Bar(pygame.rect.Rect):
             color=self.color,
             rect=(
                 self.x,
-                self.y + ((1 - self.percentage) * self.height),
-                self.width,
-                self.height * self.percentage,
+                self.y,
+                self.width * self.percentage,
+                self.height,
             ),
         )
 
