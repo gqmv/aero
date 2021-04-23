@@ -4,8 +4,6 @@ from objects import *
 from settings import *
 from menu import *
 
-ticks = 0
-
 pygame.init()
 
 WINDOW = pygame.display.set_mode(SCREEN_SIZE)
@@ -117,6 +115,30 @@ def animation(sprites: pygame.sprite.Group, name: str, ticks: int, frames: int):
         sprite.image = pygame.image.load('assets/'f'{name}'f'{str(sprite.frame)}''.png')
 
 
+def find_angle(missiles: pygame.sprite.Group, player):
+    missiles.update()
+    for missile in missiles:
+        lista = []
+        for num in range(2):
+            vec = player.rect.center[num] - missile.rect.center[num]
+            lista.append(vec)
+        vector = pygame.math.Vector2(lista[0], lista[1])
+        clockwise = pygame.math.Vector2.angle_to(missile.direction, vector)
+        if clockwise < 0:
+            clockwise = 360 + clockwise
+        anticlockwise = abs(360 - clockwise)
+        if clockwise < anticlockwise:
+            if clockwise > 10 or clockwise < -10:
+                missile.angle_speed = 5
+            else:
+                missile.angle_speed = 0
+        else:
+            if anticlockwise > 10 or anticlockwise < -10:
+                missile.angle_speed = -5
+            else:
+                missile.angle_speed = 0
+
+
 def game_loop():
     """
     This function is the main game loop.
@@ -140,15 +162,79 @@ def game_loop():
     bullets = pygame.sprite.Group()
     missiles = pygame.sprite.Group()
 
-    menu = Menu("assets/menu.png")
-    gameover = GameOver("assets/gameover.png")
+    menu = Menu()
+    gameover = GameOver()
 
     score = 0
 
-    bg = Object(
+    bg1 = Object(
         BACKGROUND_ASSET,
         0,
         0,
+        sprites,
+        background
+    )
+
+    bg2 = Object(
+        BACKGROUND_ASSET,
+        250,
+        0,
+        sprites,
+        background
+    )
+
+    bg3 = Object(
+        BACKGROUND_ASSET,
+        0,
+        250,
+        sprites,
+        background
+    )
+
+    bg4 = Object(
+        BACKGROUND_ASSET,
+        250,
+        250,
+        sprites,
+        background
+    )
+
+    bg5 = Object(
+        BACKGROUND_ASSET,
+        0,
+        500,
+        sprites,
+        background
+    )
+
+    bg6 = Object(
+        BACKGROUND_ASSET,
+        250,
+        500,
+        sprites,
+        background
+    )
+
+    bg7 = Object(
+        BACKGROUND_ASSET,
+        500,
+        0,
+        sprites,
+        background
+    )
+
+    bg8 = Object(
+        BACKGROUND_ASSET,
+        500,
+        250,
+        sprites,
+        background
+    )
+
+    bg9 = Object(
+        BACKGROUND_ASSET,
+        500,
+        500,
         sprites,
         background
     )
@@ -175,9 +261,7 @@ def game_loop():
                 menu.events(event)
 
             elif not change_scene:
-
                 score += SCORE_PER_SECOND / FPS
-                print(round(score))
 
                 if event.type == pygame.MOUSEMOTION:
                     plane.x = pygame.mouse.get_pos()[0] - plane.rect.width / 2
@@ -202,6 +286,8 @@ def game_loop():
 
         if not menu.change_scene:
             menu.all_sprites.draw(WINDOW)
+            menu.key_group.draw(WINDOW)
+            menu.animation()
 
         elif not change_scene:
             generate_item(Object, GAS_ASSET, GAS_SPAWN_CHANCE, gas_cans, sprites)
@@ -212,8 +298,8 @@ def game_loop():
             move_sprites(enemies)
             shoot(sprites, enemies, bullets)
             generate_item(Missiles, MISSILE_ASSET, MISSILE_SPAWN_CHANCE, missiles, sprites)
-            move_sprites(missiles)
             animation(background, 'bg', 10, 4)
+            find_angle(missiles, plane)
 
             # Decreasing the level of gasoline
 
@@ -280,11 +366,76 @@ def game_loop():
                 enemies.empty()
                 sprites.empty()
                 bullets.empty()
+                missiles.empty()
 
-                bg = Object(
+                bg1 = Object(
                     BACKGROUND_ASSET,
                     0,
                     0,
+                    sprites,
+                    background
+                )
+
+                bg2 = Object(
+                    BACKGROUND_ASSET,
+                    250,
+                    0,
+                    sprites,
+                    background
+                )
+
+                bg3 = Object(
+                    BACKGROUND_ASSET,
+                    0,
+                    250,
+                    sprites,
+                    background
+                )
+
+                bg4 = Object(
+                    BACKGROUND_ASSET,
+                    250,
+                    250,
+                    sprites,
+                    background
+                )
+
+                bg5 = Object(
+                    BACKGROUND_ASSET,
+                    0,
+                    500,
+                    sprites,
+                    background
+                )
+
+                bg6 = Object(
+                    BACKGROUND_ASSET,
+                    250,
+                    500,
+                    sprites,
+                    background
+                )
+
+                bg7 = Object(
+                    BACKGROUND_ASSET,
+                    500,
+                    0,
+                    sprites,
+                    background
+                )
+
+                bg8 = Object(
+                    BACKGROUND_ASSET,
+                    500,
+                    250,
+                    sprites,
+                    background
+                )
+
+                bg9 = Object(
+                    BACKGROUND_ASSET,
+                    500,
+                    500,
                     sprites,
                     background
                 )
