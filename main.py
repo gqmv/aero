@@ -23,19 +23,6 @@ def draw(sprites: pygame.sprite.Group, gas_bar: Bar, temp_bar: Bar, score: int):
     WINDOW.fill(BACKGROUND_COLOR)
     sprites.draw(WINDOW)
 
-    # Draws the border
-    pygame.draw.rect(
-        WINDOW,
-        WHITE_COLOR,
-        (
-            BORDER_MARGIN_SIDES,
-            BORDER_MARGIN_TOP_BOTTOM,
-            SCREEN_SIZE[0] - 2 * BORDER_MARGIN_SIDES,
-            SCREEN_SIZE[1] - 2 * BORDER_MARGIN_TOP_BOTTOM,
-        ),
-        BORDER_WIDTH,
-    )
-
     score_text = FONT.render(str(round(score)), True, WHITE_COLOR)
     WINDOW.blit(score_text, (SCREEN_SIZE[0] - score_text.get_width() - 20, 20))
 
@@ -139,10 +126,10 @@ def game_loop():
     clock = pygame.time.Clock()
 
     gas_bar = Bar(
-        x=10, y=80, width=25, height=400, default_percentage=1, color=RED_COLOR
+        x=60, y=10, width=250, height=25, default_percentage=1, color=RED_COLOR
     )
     temp_bar = Bar(
-        x=560, y=80, width=25, height=400, default_percentage=1, color=BLUE_COLOR
+        x=60, y=40, width=250, height=25, default_percentage=1, color=BLUE_COLOR
     )
 
     background = pygame.sprite.Group()
@@ -177,7 +164,6 @@ def game_loop():
 
     while loop:
         clock.tick(FPS)
-
 
         for event in pygame.event.get():
 
