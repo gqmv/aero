@@ -87,23 +87,37 @@ class Object(pygame.sprite.Sprite):
 
 
 class Plane(Object):
-    def __init__(self, img, img_left, img_right, x, y, *groups):
+    def __init__(self, img, x, y, *groups):
         super().__init__(img, x, y, *groups)
-        self.img_left = pygame.image.load(img_left)
-        self.img_right = pygame.image.load(img_right)
-        self.img_default = pygame.image.load(img)
         self.gas = 1
         self.temperature = 0
 
+    def movement(self, mouse):
+        if 0 < mouse[0] < SCREEN_SIZE[0]:
+            self.x = mouse[0] - self.rect.width / 2
 
-class Enemy(Object):
-    def __init__(self, image: str, x: int, y: int, *groups: pygame.sprite.Group):
-        super().__init__(image, x, y, *groups)
+        if 0 < mouse[1] < SCREEN_SIZE[1]:
+            self.y = mouse[1] - self.rect.height / 2
 
 
 class Bullets(Object):
     def __init__(self, image: str, x: int, y: int, *groups: pygame.sprite.Group):
         super().__init__(image, x, y, *groups)
+
+
+class Enemy(Object):
+    def __init__(self, image: str, x: int, y: int, *groups: pygame.sprite.Group):
+        super().__init__(image, x, y, *groups)
+        self.bullets = pygame.sprite.Group()
+
+    def shoot(self, *groups: pygame.sprite.Group):
+        Bullets(
+            BULLET_ASSET,
+            (self.x + self.rect.width / 2) - 2,
+            self.rect.bottom,
+            self.bullets,
+            *groups
+        )
 
 
 class Missiles(Object):
