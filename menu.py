@@ -3,45 +3,48 @@ from objects import Object
 from settings import *
 
 
-class Menu:
-    def __init__(self):
-        self.all_sprites = pygame.sprite.Group()
-        self.key_group = pygame.sprite.Group()
-        self.image = Object(MENU_ASSET, 0, 0, self.all_sprites)
-        self.key = Object(KEY_ASSET, 0, 600, self.key_group)
-        self.menu_water = Object(MENU_WATER, 0, 550, self.all_sprites)
-        self.change_scene = False
-        self.tick = 0
+def menu(win):
+    sprites = pygame.sprite.Group()
+    background = Object(MENU_ASSET, 0, 0, sprites)
+    press_key_text = Object(KEY_ASSET, 0, 600, sprites)
+    water = Object(MENU_WATER, 0, 550, sprites)
 
-    def draw(self, window):
-        self.all_sprites.draw(window)
-        self.key_group.draw(window)
+    tick = 0
 
-    def animation(self):
-        self.tick += 1
-        if self.tick <= 45:
-            self.key = Object(KEY_ASSET, 0, 600, self.key_group)
-        else:
-            if self.tick > 90:
-                self.tick = 0
-            self.key_group.empty()
+    while True:
 
-    def events(self, event):
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RETURN:
-                self.change_scene = True
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return pygame.QUIT
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    return True
+
+        tick += 1
+
+        if tick == 70:
+            press_key_text.kill()
+        elif tick >= 120:
+            tick = 0
+            press_key_text = Object(KEY_ASSET, 0, 600, sprites)
+
+        sprites.draw(win)
+        pygame.display.update()
 
 
-class GameOver:
-    def __init__(self):
-        self.all_sprites = pygame.sprite.Group()
-        self.image = Object(GAMEOVER_ASSET, 0, 0, self.all_sprites)
-        self.change_scene = False
+def game_over(win, score):
+    sprites = pygame.sprite.Group()
+    text = Object(GAMEOVER_ASSET, 0, 0, sprites)
+    while True:
 
-    def draw(self, window):
-        self.all_sprites.draw(window)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return pygame.QUIT
 
-    def events(self, event):
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RETURN:
-                self.change_scene = True
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    return True
+
+        sprites.draw(win)
+        pygame.display.update()

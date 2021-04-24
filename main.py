@@ -41,7 +41,9 @@ def check_collision(sprite: pygame.sprite.Sprite, group: pygame.sprite.Group):
     return False
 
 
-def generate_item(cls: type, asset: str, spawn_chance: int, *groups: pygame.sprite.Group):
+def generate_item(
+        cls: type, asset: str, spawn_chance: int, *groups: pygame.sprite.Group
+):
     """
     :param cls: The class of the object that will be generated
     :param asset: The asset of the object that will be generated
@@ -54,15 +56,9 @@ def generate_item(cls: type, asset: str, spawn_chance: int, *groups: pygame.spri
     y: The top of the bordered area.
     """
     if randint(1, 1000) < spawn_chance:
-        cls(
-            asset,
-            randint(
-                BORDER_MARGIN_SIDES + BORDER_WIDTH,
-                SCREEN_SIZE[0] - BORDER_WIDTH - BORDER_MARGIN_SIDES - 55,
-            ),
-            BORDER_MARGIN_TOP_BOTTOM + BORDER_WIDTH,
-            *groups
-        )
+        instance = cls(asset, 0, 0, *groups)
+
+        instance.x = randint(0, SCREEN_SIZE[0] - instance.rect.width)
 
 
 def move_sprites(sprites: pygame.sprite.Group):
@@ -74,45 +70,30 @@ def move_sprites(sprites: pygame.sprite.Group):
     for sprite in sprites:
         sprite.y += SCROLL_SPEED
 
-        if (
-            sprite.y
-            >= SCREEN_SIZE[1]
-            - BORDER_MARGIN_TOP_BOTTOM
-            - BORDER_WIDTH
-            - sprite.rect.height
-        ):
+        if sprite.y >= SCREEN_SIZE[1]:
             sprite.kill()
 
 
-def shoot(sprites: pygame.sprite.Group, enemies: pygame.sprite.Group, bullets: pygame.sprite.Group):
+def shoot(enemies, bullets, *groups: pygame.sprite.Group):
     for enemy in enemies:
         enemy.tick += 1
         if enemy.tick >= 30:
-            Bullets(
-                BULLET_ASSET,
-                (enemy.x + enemy.rect.width / 2) - 2,
-                enemy.rect.bottom,
-                sprites,
-                bullets
-            )
+            enemy.shoot(bullets, *groups)
             enemy.tick = 0
 
     for bullet in bullets:
         bullet.y += BULLETS_SPEED
 
-        if bullet.y >= SCREEN_SIZE[1] - BORDER_MARGIN_TOP_BOTTOM - BORDER_WIDTH - bullet.rect.height:
+        if bullet.y >= SCREEN_SIZE[1]:
             bullet.kill()
 
 
-def animation(sprites: pygame.sprite.Group, name: str, ticks: int, frames: int):
-    for sprite in sprites:
-        sprite.tick += 1
-        if sprite.tick == ticks:
-            sprite.tick = 0
-            sprite.frame += 1
-        if sprite.frame == frames:
-            sprite.frame = 1
-        sprite.image = pygame.image.load('assets/'f'{name}'f'{str(sprite.frame)}''.png')
+def animation(sprite: Object, ticks: int):
+    sprite.tick += 1
+    if sprite.tick == ticks:
+        sprite.tick = 0
+
+        sprite.image = pygame.transform.rotate(sprite.image, 90)
 
 
 def find_angle(missiles: pygame.sprite.Group, player):
@@ -144,7 +125,6 @@ def game_loop():
     This function is the main game loop.
     """
     loop = True
-    change_scene = False
     clock = pygame.time.Clock()
 
     gas_bar = Bar(
@@ -154,7 +134,7 @@ def game_loop():
         x=60, y=40, width=250, height=25, default_percentage=1, color=BLUE_COLOR
     )
 
-    background = pygame.sprite.Group()
+    bars = pygame.sprite.Group()
     gas_cans = pygame.sprite.Group()
     water_cans = pygame.sprite.Group()
     sprites = pygame.sprite.Group()
@@ -162,310 +142,132 @@ def game_loop():
     bullets = pygame.sprite.Group()
     missiles = pygame.sprite.Group()
 
-    menu = Menu()
-    gameover = GameOver()
-
     score = 0
 
-    bg1 = Object(
-        BACKGROUND_ASSET,
-        0,
-        0,
-        sprites,
-        background
-    )
-
-    bg2 = Object(
-        BACKGROUND_ASSET,
-        250,
-        0,
-        sprites,
-        background
-    )
-
-    bg3 = Object(
-        BACKGROUND_ASSET,
-        0,
-        250,
-        sprites,
-        background
-    )
-
-    bg4 = Object(
-        BACKGROUND_ASSET,
-        250,
-        250,
-        sprites,
-        background
-    )
-
-    bg5 = Object(
-        BACKGROUND_ASSET,
-        0,
-        500,
-        sprites,
-        background
-    )
-
-    bg6 = Object(
-        BACKGROUND_ASSET,
-        250,
-        500,
-        sprites,
-        background
-    )
-
-    bg7 = Object(
-        BACKGROUND_ASSET,
-        500,
-        0,
-        sprites,
-        background
-    )
-
-    bg8 = Object(
-        BACKGROUND_ASSET,
-        500,
-        250,
-        sprites,
-        background
-    )
-
-    bg9 = Object(
-        BACKGROUND_ASSET,
-        500,
-        500,
-        sprites,
-        background
-    )
+    background = Object(BACKGROUND_ASSET, 0, 0, sprites)
 
     plane = Plane(
-        PLANE_ASSET,
-        PLANE_ASSET,
         PLANE_ASSET,
         SCREEN_SIZE[0] / 2,
         SCREEN_SIZE[1] - 200,
         sprites,
     )
 
-    while loop:
+    while True:
         clock.tick(FPS)
 
         for event in pygame.event.get():
 
             if event.type == pygame.QUIT:
-                loop = False
-                break
+                return pygame.QUIT
 
-            if not menu.change_scene:
-                menu.events(event)
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_f:
+                    plane.shoot(sprites)
 
-            elif not change_scene:
-                score += SCORE_PER_SECOND / FPS
+        score += SCORE_PER_SECOND / FPS
 
-                if event.type == pygame.MOUSEMOTION:
-                    plane.x = pygame.mouse.get_pos()[0] - plane.rect.width / 2
-                    plane.y = pygame.mouse.get_pos()[1] - plane.rect.height / 2
+        mouse = pygame.mouse.get_pos()
+        plane.movement(mouse)
 
-                    # Adding colisions with the edge
+        generate_item(Object, GAS_ASSET, GAS_SPAWN_CHANCE, gas_cans, sprites)
+        move_sprites(gas_cans)
+        generate_item(Object, WATER_ASSET, WATER_SPAWN_CHANCE, water_cans, sprites)
+        move_sprites(water_cans)
+        generate_item(Enemy, ENEMY_ASSET, ENEMY_SPAWN_CHANCE, enemies, sprites)
+        move_sprites(enemies)
+        shoot(enemies, bullets, sprites)
+        generate_item(Missiles, MISSILE_ASSET, MISSILE_SPAWN_CHANCE, missiles, sprites)
+        animation(background, 10)
+        find_angle(missiles, plane)
+        plane.move_bullets()
 
-                    if plane.rect.right >= SCREEN_SIZE[0] - (BORDER_MARGIN_SIDES + BORDER_WIDTH):
-                        plane.rect.right = SCREEN_SIZE[0] - (BORDER_MARGIN_SIDES + BORDER_WIDTH)
+        # Decreasing the level of gasoline
 
-                    elif plane.rect.left <= (BORDER_MARGIN_SIDES + BORDER_WIDTH):
-                        plane.rect.left = (BORDER_MARGIN_SIDES + BORDER_WIDTH)
+        plane.gas = max(plane.gas - GAS_CONS_PER_FRAME, 0)
 
-                    if plane.rect.top <= BORDER_MARGIN_TOP_BOTTOM:
-                        plane.rect.top = BORDER_MARGIN_TOP_BOTTOM
+        # Collisions between plane and gas cans
 
-                    elif plane.rect.bottom >= SCREEN_SIZE[1] - BORDER_MARGIN_TOP_BOTTOM:
-                        plane.rect.bottom = SCREEN_SIZE[1] - BORDER_MARGIN_TOP_BOTTOM
+        if check_collision(plane, gas_cans):
+            plane.gas = min(plane.gas + GAS_PER_CAN, 1)
 
-            else:
-                gameover.events(event)
+        # Increasing the temperature
 
-        if not menu.change_scene:
-            menu.all_sprites.draw(WINDOW)
-            menu.key_group.draw(WINDOW)
-            menu.animation()
+        plane.temperature = min(plane.temperature + TEMP_CONS_PER_FRAME, 1)
 
-        elif not change_scene:
-            generate_item(Object, GAS_ASSET, GAS_SPAWN_CHANCE, gas_cans, sprites)
-            move_sprites(gas_cans)
-            generate_item(Object, WATER_ASSET, WATER_SPAWN_CHANCE, water_cans, sprites)
-            move_sprites(water_cans)
-            generate_item(Enemy, ENEMY_ASSET, ENEMY_SPAWN_CHANCE, enemies, sprites)
-            move_sprites(enemies)
-            shoot(sprites, enemies, bullets)
-            generate_item(Missiles, MISSILE_ASSET, MISSILE_SPAWN_CHANCE, missiles, sprites)
-            animation(background, 'bg', 10, 4)
-            find_angle(missiles, plane)
+        # Collisions between plane and water cans
 
-            # Decreasing the level of gasoline
+        if check_collision(plane, water_cans):
+            plane.temperature = max(plane.temperature - COOLING_PER_CAN, 0)
 
-            if plane.gas >= GAS_CONS_PER_FRAME:
-                plane.gas -= GAS_CONS_PER_FRAME
+        # Collisions between plane and enemies
 
-            # Collisions between plane and gas cans
+        if check_collision(plane, enemies):
+            return score
 
-            if check_collision(plane, gas_cans):
-                plane.gas += GAS_PER_CAN
+        # Collisions between plane and bullets
 
-                if plane.gas > 1:
-                    plane.gas = 1
+        if check_collision(plane, bullets):
+            max(plane.gas - BULLET_GAS_DAMAGE, 0)
+            plane.temperature = min(plane.temperature + BULLET_TEMP_DAMAGE, 1)
 
-            # Increasing the temperature
+        # Collisions between plane and missiles
 
-            if plane.temperature <= 1:
-                plane.temperature += TEMP_CONS_PER_FRAME
+        if check_collision(plane, missiles):
+            plane.gas = max(plane.gas - MISSILE_GAS_DAMAGE, 0)
+            plane.temperature = min(plane.temperature + MISSILE_TEMP_DAMAGE, 1)
 
-            # Collisions between plane and water cans
+        # Loosing conditions
 
-            if check_collision(plane, water_cans):
-                plane.temperature -= COOLING_PER_CAN
+        if plane.gas <= 0 or plane.temperature >= 1:
+            return score
 
-                if plane.temperature <= 0:
-                    plane.temperature = 0
+        gas_bar.percentage = plane.gas
+        temp_bar.percentage = plane.temperature
+        draw(sprites, gas_bar, temp_bar, score)
 
-            # Collisions between plane and enemies
+        for missile in missiles:
+            if check_collision(missile, plane.bullets):
+                missile.life -= 0.5
 
-            if check_collision(plane, enemies):
-                plane.gas = 0
+            if 0 < missile.life < 1:
+                missile_bar = Bar(x=missile.rect.centerx - 30,
+                                  y=missile.rect.centery - 40,
+                                  width=50,
+                                  height=10,
+                                  default_percentage=missile.life,
+                                  color=RED_COLOR)
+                missile_bar.draw(WINDOW)
+            if missile.life == 0:
+                missile.kill()
 
-                if plane.gas <= 0:
-                    plane.gas = 0
+        for enemy in enemies:
+            if check_collision(enemy, plane.bullets):
+                enemy.life -= 0.25
 
-            # Collisions between plane and bullets
-
-            if check_collision(plane, bullets):
-                plane.gas -= GAS_PER_CAN
-                plane.temperature += COOLING_PER_CAN
-
-                if plane.gas <= 0:
-                    plane.gas = 0
-
-                if plane.temperature >= 1:
-                    plane.temperature = 1
-
-            # Collisions between plane and missiles
-
-            if check_collision(plane, missiles):
-                plane.gas -= GAS_PER_CAN * 3
-                plane.temperature += COOLING_PER_CAN * 3
-
-                if plane.gas <= 0:
-                    plane.gas = 0
-
-                if plane.temperature >= 1:
-                    plane.temperature = 1
-
-            if plane.gas <= 0.0005 or plane.temperature >= 1:
-                change_scene = True
-                gas_cans.empty()
-                water_cans.empty()
-                enemies.empty()
-                sprites.empty()
-                bullets.empty()
-                missiles.empty()
-
-                bg1 = Object(
-                    BACKGROUND_ASSET,
-                    0,
-                    0,
-                    sprites,
-                    background
-                )
-
-                bg2 = Object(
-                    BACKGROUND_ASSET,
-                    250,
-                    0,
-                    sprites,
-                    background
-                )
-
-                bg3 = Object(
-                    BACKGROUND_ASSET,
-                    0,
-                    250,
-                    sprites,
-                    background
-                )
-
-                bg4 = Object(
-                    BACKGROUND_ASSET,
-                    250,
-                    250,
-                    sprites,
-                    background
-                )
-
-                bg5 = Object(
-                    BACKGROUND_ASSET,
-                    0,
-                    500,
-                    sprites,
-                    background
-                )
-
-                bg6 = Object(
-                    BACKGROUND_ASSET,
-                    250,
-                    500,
-                    sprites,
-                    background
-                )
-
-                bg7 = Object(
-                    BACKGROUND_ASSET,
-                    500,
-                    0,
-                    sprites,
-                    background
-                )
-
-                bg8 = Object(
-                    BACKGROUND_ASSET,
-                    500,
-                    250,
-                    sprites,
-                    background
-                )
-
-                bg9 = Object(
-                    BACKGROUND_ASSET,
-                    500,
-                    500,
-                    sprites,
-                    background
-                )
-
-                plane = Plane(
-                    PLANE_ASSET,
-                    PLANE_ASSET,
-                    PLANE_ASSET,
-                    SCREEN_SIZE[0] / 2,
-                    SCREEN_SIZE[1] - 200,
-                    sprites,
-                )
-
-            gas_bar.percentage = plane.gas
-            temp_bar.percentage = plane.temperature
-            draw(sprites, gas_bar, temp_bar, score)
-
-        elif not gameover.change_scene:
-            gameover.all_sprites.draw(WINDOW)
-            score = 0
-
-        else:
-            menu.change_scene = False
-            change_scene = False
-            gameover.change_scene = False
-            plane.gas = 1
-            plane.temperature = 0
+            if 0 < enemy.life < 1:
+                enemy_bar = Bar(x=enemy.rect.centerx - 30,
+                                y=enemy.rect.centery - 63,
+                                width=50,
+                                height=10,
+                                default_percentage=enemy.life,
+                                color=RED_COLOR)
+                enemy_bar.draw(WINDOW)
+            if enemy.life == 0:
+                enemy.kill()
 
         pygame.display.update()
 
 
 if __name__ == "__main__":
-    game_loop()
+    result = menu(WINDOW)
+
+    while True:
+
+        result = game_loop()
+        if result == pygame.QUIT:
+            break
+
+        result = game_over(WINDOW, result)
+        if result == pygame.QUIT:
+            break
