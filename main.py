@@ -202,14 +202,9 @@ def game_loop():
         # Collisions between plane and bullets
 
         if check_collision(plane, bullets):
-            plane.gas -= BULLET_GAS_DAMAGE
-            plane.temperature += BULLET_TEMP_DAMAGE
+            max(plane.gas - BULLET_GAS_DAMAGE, 0)
+            plane.temperature = min(plane.temperature + BULLET_TEMP_DAMAGE, 1)
 
-            if plane.gas <= 0:
-                plane.gas = 0
-
-            if plane.temperature >= 1:
-                plane.temperature = 1
 
         # Collisions between plane and missiles
 
