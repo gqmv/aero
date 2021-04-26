@@ -87,23 +87,66 @@ class Object(pygame.sprite.Sprite):
 
 
 class Plane(Object):
-    def __init__(self, img, img_left, img_right, x, y, *groups):
+    def __init__(self, img, x, y, *groups):
         super().__init__(img, x, y, *groups)
-        self.img_left = pygame.image.load(img_left)
-        self.img_right = pygame.image.load(img_right)
-        self.img_default = pygame.image.load(img)
+        self.bullets = pygame.sprite.Group()
         self.gas = 1
         self.temperature = 0
 
+    def movement(self, mouse):
+        if 0 < mouse[0] < SCREEN_SIZE[0]:
+            self.x = mouse[0] - self.rect.width / 2
 
-class Enemy(Object):
-    def __init__(self, image: str, x: int, y: int, *groups: pygame.sprite.Group):
-        super().__init__(image, x, y, *groups)
+        if 0 < mouse[1] < SCREEN_SIZE[1]:
+            self.y = mouse[1] - self.rect.height / 2
+
+    def shoot(self, *groups: pygame.sprite.Group):
+
+        bullet_1 = Bullets(
+            BULLET_ASSET,
+            (self.x + self.rect.width / 2) + 8,
+            self.rect.top - 2,
+            self.bullets,
+            *groups
+        )
+
+        bullet_2 = Bullets(
+            BULLET_ASSET,
+            (self.x + self.rect.width / 2) - 16,
+            self.rect.top - 2,
+            self.bullets,
+            *groups
+        )
+
+        bullet_1.image = pygame.transform.rotate(bullet_1.image, 180)
+        bullet_2.image = pygame.transform.rotate(bullet_2.image, 180)
+
+    def move_bullets(self):
+        for bullet in self.bullets:
+            bullet.y -= BULLETS_SPEED
+            if bullet.y <= 0:
+                bullet.kill()
 
 
 class Bullets(Object):
     def __init__(self, image: str, x: int, y: int, *groups: pygame.sprite.Group):
         super().__init__(image, x, y, *groups)
+
+
+class Enemy(Object):
+    def __init__(self, image: str, x: int, y: int, *groups: pygame.sprite.Group):
+        super().__init__(image, x, y, *groups)
+        self.bullets = pygame.sprite.Group()
+        self.life = 1
+
+    def shoot(self, *groups: pygame.sprite.Group):
+        Bullets(
+            BULLET_ASSET,
+            (self.x + self.rect.width / 2) - 2,
+            self.rect.bottom,
+            self.bullets,
+            *groups
+        )
 
 
 class Missiles(Object):
@@ -117,6 +160,7 @@ class Missiles(Object):
         self.speed = 5
         self.angle_speed = 0
         self.angle = 0
+        self.life = 1
 
     def update(self):
         if self.angle_speed != 0:
@@ -128,3 +172,12 @@ class Missiles(Object):
         # Update the position vector and the rect.
         self.position += self.direction * self.speed
         self.rect.center = self.position
+        
+
+class Text:
+    def __init__(self, size, text, color):
+        self.font = pygame.font.Font('font/8-BIT WONDER.TTF', size)
+        self.render = self.font.render(text, True, color)
+
+    def draw(self, window, x, y):
+        window.blit(self.render, (x, y))
