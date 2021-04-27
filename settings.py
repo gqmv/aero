@@ -7,14 +7,12 @@ pygame.font.init()
 RED_COLOR = pygame.Color("Red")
 BLUE_COLOR = pygame.Color("Blue")
 WHITE_COLOR = pygame.Color("White")
+YELLOW_COLOR = pygame.Color("Yellow")
 BACKGROUND_COLOR = (120, 172, 255)
 
 # Definições de janela
 SCREEN_SIZE = (600, 750)
 WINDOW_NAME = "Aero"
-BORDER_MARGIN_SIDES = 80
-BORDER_MARGIN_TOP_BOTTOM = 60
-BORDER_WIDTH = 4
 
 # Definições de jogabilidade
 FPS = 60
@@ -35,12 +33,12 @@ ENEMY_SPAWN_CHANCE = 5  # (0-1000)
 ENEMY_PER_CAN = 0.1  # (0-1)
 ENEMY_CONS_PER_FRAME = 0.0005  # (0-1)
 
-MISSILE_SPAWN_CHANCE = 5  # (0-1000)
-MISSILE_PER_CAN = 0.1  # (0-1)
-MISSILE_CONS_PER_FRAME = 0.0005  # (0-1)
+BULLET_GAS_DAMAGE = GAS_PER_CAN
+BULLET_TEMP_DAMAGE = COOLING_PER_CAN
 
-FONT_SIZE = 20
-FONT = pygame.font.SysFont('Comic Sans MS', 20)
+MISSILE_SPAWN_CHANCE = 5  # (0-1000)
+MISSILE_GAS_DAMAGE = GAS_PER_CAN * 3
+MISSILE_TEMP_DAMAGE = COOLING_PER_CAN * 3
 
 # Assets
 GAS_ASSET = os.path.join("assets", "gas.png")
@@ -48,9 +46,12 @@ PLANE_ASSET = os.path.join("assets", "plane.png")
 WATER_ASSET = os.path.join("assets", "water.png")
 ENEMY_ASSET = os.path.join("assets", "enemy.png")
 BULLET_ASSET = os.path.join("assets", "bullet.png")
-BACKGROUND_ASSET = os.path.join("assets", "bg1.png")
+BACKGROUND_ASSET = os.path.join("assets", "background.png")
 MENU_ASSET = os.path.join("assets", "menu.png")
-KEY_ASSET = os.path.join("assets", "key.png")
+START_KEY_ASSET = os.path.join("assets", "start_key.png")
+HIGHSCORE_KEY_ASSET = os.path.join("assets", "highscore_key.png")
+SELECTOR_ASSET = os.path.join("assets", "selector.png")
 MENU_WATER = os.path.join("assets", "menu_water.png")
 GAMEOVER_ASSET = os.path.join("assets", "gameover.png")
-MISSILE_ASSET = os.path.join("assets", "missile.png")
+MISSILE_ASSET = os.path.join("assets", "rocket1.png")
+HIGHSCORE_ASSET = os.path.join("assets", "highscore.png")
