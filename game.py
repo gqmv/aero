@@ -2,6 +2,7 @@ import pygame
 from random import randint
 from objects import *
 from settings import *
+from pygame import mixer
 
 
 def draw(win, sprites: pygame.sprite.Group, gas_bar: Bar, temp_bar: Bar, score: int):
@@ -76,6 +77,8 @@ def shoot(enemies, bullets, *groups: pygame.sprite.Group):
         if enemy.tick >= 50:
             enemy.shoot(bullets, *groups)
             enemy.tick = 0
+            shot_sound = mixer.Sound('sounds/shot.wav')
+            shot_sound.play()
 
     for bullet in bullets:
         bullet.y += BULLETS_SPEED
@@ -122,6 +125,7 @@ def game_loop(win):
     """
     This function is the main game loop.
     """
+    global new_velocity
     clock = pygame.time.Clock()
 
     gas_bar = Bar(
@@ -174,6 +178,8 @@ def game_loop(win):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_f:
                     plane.shoot(sprites)
+                    shot_sound = mixer.Sound('sounds/shot.wav')
+                    shot_sound.play()
 
         score += SCORE_PER_SECOND / FPS
 

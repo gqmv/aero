@@ -1,6 +1,7 @@
 import pygame
 from objects import *
 from settings import *
+from pygame import mixer
 
 
 def menu(win, archive):
@@ -21,12 +22,16 @@ def menu(win, archive):
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
+                    enter_sound = mixer.Sound('sounds/enter.wav')
+                    enter_sound.play()
                     if state == 'start':
                         return True
                     else:
                         enter = True
                         highscore(win, archive)
                 elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
+                    selector_sound = mixer.Sound('sounds/selector_sound.wav')
+                    selector_sound.play()
                     if state == 'start':
                         state = 'highscore'
                         selector.kill()
@@ -38,6 +43,8 @@ def menu(win, archive):
                         selector = Object(SELECTOR_ASSET, 190, 548, sprites)
 
                 elif event.key == pygame.K_UP or event.key == pygame.K_w:
+                    selector_sound = mixer.Sound('sounds/selector_sound.wav')
+                    selector_sound.play()
                     if state == 'start':
                         state = 'highscore'
                         selector.kill()
@@ -49,6 +56,8 @@ def menu(win, archive):
                         selector = Object(SELECTOR_ASSET, 190, 548, sprites)
 
                 elif event.key == pygame.K_ESCAPE:
+                    enter_sound = mixer.Sound('sounds/enter.wav')
+                    enter_sound.play()
                     if state == 'highscore':
                         state = 'start'
                         enter = False
