@@ -194,7 +194,7 @@ def game_loop(win):
 
         # Decreasing the level of gasoline
 
-        plane.gas = max(plane.gas - GAS_CONS_PER_FRAME, 0)
+        plane.gas = max(plane.gas - GAS_CONS_PER_FRAME, 0.1)
 
         # Collisions between plane and gas cans
 
@@ -203,7 +203,7 @@ def game_loop(win):
 
         # Increasing the temperature
 
-        plane.temperature = min(plane.temperature + TEMP_CONS_PER_FRAME, 1)
+        plane.temperature = min(plane.temperature + TEMP_CONS_PER_FRAME, 0.9)
 
         # Collisions between plane and water cans
 
