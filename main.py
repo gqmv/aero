@@ -2,11 +2,12 @@ import pygame
 from menus import *
 from game import *
 
-archive = 'highscore.txt'
-if not check_archive(archive):
-    create_archive(archive)
 
 if __name__ == "__main__":
+    archive = "highscore.txt"
+    if not check_archive(archive):
+        create_archive(archive)
+
     pygame.init()
 
     WINDOW = pygame.display.set_mode(SCREEN_SIZE)
