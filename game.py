@@ -2,6 +2,9 @@ import pygame
 from random import randint
 from objects import *
 from settings import *
+from pygame import mixer
+
+new_velocity = 0
 
 
 def draw(win, sprites: pygame.sprite.Group, gas_bar: Bar, temp_bar: Bar, score: int):
@@ -63,8 +66,10 @@ def move_sprites(sprites: pygame.sprite.Group):
 
     This function moves all sprites SCROLL_SPEED pixels down.
     """
+    global new_velocity
     for sprite in sprites:
-        sprite.y += SCROLL_SPEED
+        new_velocity += (5 * 10 ** (-5))
+        sprite.y += SCROLL_SPEED + new_velocity
 
         if sprite.y >= SCREEN_SIZE[1]:
             sprite.kill()
@@ -76,6 +81,8 @@ def shoot(enemies, bullets, *groups: pygame.sprite.Group):
         if enemy.tick >= 50:
             enemy.shoot(bullets, *groups)
             enemy.tick = 0
+            shot_sound = mixer.Sound('sounds/shot.wav')
+            shot_sound.play()
 
     for bullet in bullets:
         bullet.y += BULLETS_SPEED
@@ -122,6 +129,7 @@ def game_loop(win):
     """
     This function is the main game loop.
     """
+    global new_velocity
     clock = pygame.time.Clock()
 
     gas_bar = Bar(
@@ -174,6 +182,8 @@ def game_loop(win):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_f:
                     plane.shoot(sprites)
+                    shot_sound = mixer.Sound('sounds/shot.wav')
+                    shot_sound.play()
 
         score += SCORE_PER_SECOND / FPS
 
@@ -194,7 +204,7 @@ def game_loop(win):
 
         # Decreasing the level of gasoline
 
-        plane.gas = max(plane.gas - GAS_CONS_PER_FRAME, 0.1)
+        plane.gas = max(plane.gas - GAS_CONS_PER_FRAME, 0)
 
         # Collisions between plane and gas cans
 
@@ -203,7 +213,7 @@ def game_loop(win):
 
         # Increasing the temperature
 
-        plane.temperature = min(plane.temperature + TEMP_CONS_PER_FRAME, 0.9)
+        plane.temperature = min(plane.temperature + TEMP_CONS_PER_FRAME, 1)
 
         # Collisions between plane and water cans
 
@@ -213,6 +223,7 @@ def game_loop(win):
         # Collisions between plane and enemies
 
         if check_collision(plane, enemies):
+            new_velocity = 0
             return score
 
         # Collisions between plane and bullets
@@ -230,6 +241,7 @@ def game_loop(win):
         # Loosing conditions
 
         if plane.gas <= 0 or plane.temperature >= 1:
+            new_velocity = 0
             return score
 
         gas_bar.percentage = plane.gas
