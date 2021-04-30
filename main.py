@@ -13,20 +13,17 @@ if __name__ == "__main__":
 
     WINDOW = pygame.display.set_mode(SCREEN_SIZE)
     pygame.display.set_caption(WINDOW_NAME)
-    mixer.music.load('sounds/game_music.wav')
+    mixer.music.load("sounds/game_music.wav")
     mixer.music.play(-1)
 
-    while True:
-        result = menu(WINDOW, archive)
-        if result == pygame.QUIT:
-            break
+    if menu(WINDOW, archive) != pygame.QUIT:
+        while True:
+            result = game_loop(WINDOW)
+            if result == pygame.QUIT:
+                break
+            else:
+                update_archive(archive, int(result))
 
-        result = game_loop(WINDOW)
-        if result == pygame.QUIT:
-            break
-        else:
-            update_archive(archive, int(result))
-
-        result = game_over(WINDOW, result)
-        if result == pygame.QUIT:
-            break
+            result = game_over(WINDOW, result)
+            if result == pygame.QUIT:
+                break
