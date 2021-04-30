@@ -142,10 +142,10 @@ def highscore(win, archive):
     Object(HIGHSCORE_ASSET, 0, 0, sprites)
     sprites.draw(win)
     text = Text(60, 'Highscore', WHITE_COLOR)
-    text.draw(win, SCREEN_SIZE[0]/2 - text.render.get_width()/2, 100)
+    text.draw(win, SCREEN_SIZE[0]/2 - text.render.get_width()/2, 80)
 
     text = Text(60, update_archive(archive), WHITE_COLOR)
-    text.draw(win, SCREEN_SIZE[0]/2 - text.render.get_width()/2, 300)
+    text.draw(win, SCREEN_SIZE[0]/2 - text.render.get_width()/2, 370)
 
     text = Text(20, 'Press Esc to return', YELLOW_COLOR)
     text.draw(win, SCREEN_SIZE[0]/2 - text.render.get_width()/2, 550)
