@@ -70,8 +70,16 @@ def menu(win, archive):
 
 
 def game_over(win, score):
+    state = 'restart'
     sprites = pygame.sprite.Group()
-    text = Object(GAMEOVER_ASSET, 0, 0, sprites)
+    background = Object(GAME_OVER_ASSET, 0, 0, sprites)
+    restart_key = Object(RESTART_KEY_ASSET, 215, 550, sprites)
+    restart_key.x = (SCREEN_SIZE[0] / 2) - (restart_key.rect.width / 2)
+    quit_key = Object(QUIT_KEY_ASSET, 215, 625, sprites)
+    quit_key.x = (SCREEN_SIZE[0] / 2) - (quit_key.rect.width / 2)
+    selector = Object(SELECTOR_ASSET, 190, 548, sprites)
+    enter = False
+
     while True:
 
         for event in pygame.event.get():
@@ -80,9 +88,52 @@ def game_over(win, score):
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    return True
+                    enter_sound = mixer.Sound('sounds/enter.wav')
+                    enter_sound.play()
+                    if state == 'restart':
+                        return True
+                    else:
+                        enter = True
+                        return pygame.QUIT
+                elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
+                    selector_sound = mixer.Sound('sounds/selector_sound.wav')
+                    selector_sound.play()
+                    if state == 'restart':
+                        state = 'quit'
+                        selector.kill()
+                        selector = Object(SELECTOR_ASSET, 190, 623, sprites)
 
-        sprites.draw(win)
+                    elif state == 'quit':
+                        state = 'restart'
+                        selector.kill()
+                        selector = Object(SELECTOR_ASSET, 190, 548, sprites)
+
+                elif event.key == pygame.K_UP or event.key == pygame.K_w:
+                    selector_sound = mixer.Sound('sounds/selector_sound.wav')
+                    selector_sound.play()
+                    if state == 'restart':
+                        state = 'quit'
+                        selector.kill()
+                        selector = Object(SELECTOR_ASSET, 190, 623, sprites)
+
+                    elif state == 'quit':
+                        state = 'restart'
+                        selector.kill()
+                        selector = Object(SELECTOR_ASSET, 190, 548, sprites)
+
+                elif event.key == pygame.K_ESCAPE:
+                    enter_sound = mixer.Sound('sounds/enter.wav')
+                    enter_sound.play()
+                    if state == 'quit':
+                        state = 'quit'
+                        enter = False
+                        selector.kill()
+                        selector = Object(SELECTOR_ASSET, 190, 548, sprites)
+
+        if not enter:
+            sprites.draw(win)
+            text = Text(20, f"YOU SCORED {round(score)} POINTS", WHITE_COLOR)
+            text.draw(win, (SCREEN_SIZE[0] / 2) - (text.render.get_width() / 2), 450)
         pygame.display.update()
 
 
