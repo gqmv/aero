@@ -20,7 +20,6 @@ MOVEMENT_SPEED = 10
 SCROLL_SPEED = 5
 BULLETS_SPEED = 10
 SCORE_PER_SECOND = 2
-NEW_VELOCITY = 0
 
 GAS_SPAWN_CHANCE = 5  # (0-1000)
 GAS_PER_CAN = 0.1  # (0-1)
@@ -55,4 +54,6 @@ SELECTOR_ASSET = os.path.join("assets", "selector.png")
 MENU_WATER = os.path.join("assets", "menu_water.png")
 GAMEOVER_ASSET = os.path.join("assets", "gameover.png")
 MISSILE_ASSET = os.path.join("assets", "rocket1.png")
+MOTOR_STATUS_ASSET = os.path.join("assets", "motor_status.png")
+GAS_STATUS_ASSET = os.path.join("assets", "gas_status.png")
 HIGHSCORE_ASSET = os.path.join("assets", "highscore.png")
