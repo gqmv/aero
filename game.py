@@ -68,7 +68,7 @@ def move_sprites(sprites: pygame.sprite.Group):
     """
     global new_velocity
     for sprite in sprites:
-        new_velocity += (5 * 10 ** (-5))
+        new_velocity += (5 * 10 ** (-4))
         sprite.y += SCROLL_SPEED + new_velocity
 
         if sprite.y >= SCREEN_SIZE[1]:
@@ -81,8 +81,6 @@ def shoot(enemies, bullets, *groups: pygame.sprite.Group):
         if enemy.tick >= 50:
             enemy.shoot(bullets, *groups)
             enemy.tick = 0
-            shot_sound = mixer.Sound('sounds/shot.wav')
-            shot_sound.play()
 
     for bullet in bullets:
         bullet.y += BULLETS_SPEED
@@ -130,6 +128,7 @@ def game_loop(win):
     This function is the main game loop.
     """
     global new_velocity
+    new_velocity = 0
     clock = pygame.time.Clock()
 
     gas_bar = Bar(
@@ -139,6 +138,7 @@ def game_loop(win):
         x=60, y=45, width=250, height=25, default_percentage=1, color=BLUE_COLOR
     )
 
+    status = pygame.sprite.Group()
     gas_cans = pygame.sprite.Group()
     water_cans = pygame.sprite.Group()
     sprites = pygame.sprite.Group()
@@ -150,18 +150,18 @@ def game_loop(win):
 
     background = Object(BACKGROUND_ASSET, 0, 0, sprites)
 
-    gas_icon = Object(
-        GAS_ASSET,
+    gas_status = Object(
+        GAS_STATUS_ASSET,
         22,
         5,
-        sprites
+        status
     )
 
-    water_icon = Object(
-        WATER_ASSET,
+    motor_status = Object(
+        MOTOR_STATUS_ASSET,
         20,
         40,
-        sprites
+        status
     )
 
     plane = Plane(
@@ -173,7 +173,6 @@ def game_loop(win):
 
     while True:
         clock.tick(FPS)
-
         for event in pygame.event.get():
 
             if event.type == pygame.QUIT:
@@ -184,7 +183,6 @@ def game_loop(win):
                     plane.shoot(sprites)
                     shot_sound = mixer.Sound('sounds/shot.wav')
                     shot_sound.play()
-
         score += SCORE_PER_SECOND / FPS
 
         mouse = pygame.mouse.get_pos()
@@ -204,26 +202,29 @@ def game_loop(win):
 
         # Decreasing the level of gasoline
 
-        plane.gas = max(plane.gas - GAS_CONS_PER_FRAME, 0)
+        plane.gas = max(plane.gas - GAS_CONS_PER_FRAME, 0.1)
 
         # Collisions between plane and gas cans
 
         if check_collision(plane, gas_cans):
+            collection_sound = mixer.Sound('sounds/collection.wav')
+            collection_sound.play()
             plane.gas = min(plane.gas + GAS_PER_CAN, 1)
 
         # Increasing the temperature
 
-        plane.temperature = min(plane.temperature + TEMP_CONS_PER_FRAME, 1)
+        plane.temperature = min(plane.temperature + TEMP_CONS_PER_FRAME, 0.9)
 
         # Collisions between plane and water cans
 
         if check_collision(plane, water_cans):
+            collection_sound = mixer.Sound('sounds/collection.wav')
+            collection_sound.play()
             plane.temperature = max(plane.temperature - COOLING_PER_CAN, 0)
 
         # Collisions between plane and enemies
 
         if check_collision(plane, enemies):
-            new_velocity = 0
             return score
 
         # Collisions between plane and bullets
@@ -241,12 +242,12 @@ def game_loop(win):
         # Loosing conditions
 
         if plane.gas <= 0 or plane.temperature >= 1:
-            new_velocity = 0
             return score
 
         gas_bar.percentage = plane.gas
         temp_bar.percentage = plane.temperature
         draw(win, sprites, gas_bar, temp_bar, score)
+        status.draw(win)
 
         for missile in missiles:
             if check_collision(missile, plane.bullets):
@@ -261,6 +262,7 @@ def game_loop(win):
                                   color=RED_COLOR)
                 missile_bar.draw(win)
             if missile.life == 0:
+                score += 5
                 missile.kill()
 
         for enemy in enemies:
@@ -276,6 +278,6 @@ def game_loop(win):
                                 color=RED_COLOR)
                 enemy_bar.draw(win)
             if enemy.life == 0:
+                score += 10
                 enemy.kill()
-
         pygame.display.update()
